@@ -1,13 +1,21 @@
 <template>
   <v-container class="fill-height">
+    <v-alert
+          v-model="dialog"
+          variant="outlined"
+          closable
+          :type="alertType"
+          title="Alert title"
+          :text="alertText"
+        ></v-alert>
     <v-responsive class="align-center text-center full-height">
-
       <v-sheet min-width="300" max-width="600" class="mx-auto">
          <div class="text-h5 font-weight-medium mb-5">
         Duhe igisokozo !
       </div>
-        <v-form fast-fail @submit.prevent>
+        <v-form fast-fail @submit.prevent="sendData">
           <v-text-field
+            :disabled="dialog"
             v-model="igisokozo"
             variant="outlined"
             clearable
@@ -16,11 +24,12 @@
           ></v-text-field>
 
           <v-textarea
-            v-model="lastName"
+            :disabled="dialog"
+            v-model="inyishu"
             variant="outlined"
             clearable
             label="Izuru n'umunwa"
-            :rules="inyishu"
+            :rules="inyishuRules"
           ></v-textarea>
 
           <v-btn
@@ -32,7 +41,6 @@
             color="pink"
             size="x-large"
             variant="elevated"
-            @click="loading = !loading"
           >
             Rungika
           </v-btn>
@@ -53,7 +61,13 @@
 <script>
   export default {
     data: () => ({
+      url:"https://ibisokozo.ksquad.dev/collect/",
+      url2:"http://127.0.0.1:8000/rest_api/collect/",
       igisokozo: "",
+      loading:false,
+      dialog:false,
+      alertType:"",
+      alertText:"",
       igisokozoRules: [
         value => {
           if (value.trim()?.length > 3) return true
@@ -70,5 +84,47 @@
         },
       ],
     }),
+    methods:{
+      closeDialog(){
+        this.dialog=false
+        this.igisokozo=""
+        this.inyishu=""
+        window.location.reload();
+      },
+      sendData(){
+        if(this.inyishu.trim()?.length>3 && this.igisokozo.trim()?.length>3){
+          this.loading=true
+          fetch(this.url2, {
+            method: "POST",
+            body: JSON.stringify({
+              igisokozo: this.igisokozo,
+              inyishu: this.inyishu
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8"
+            }
+          })
+            .then(result => {
+                //Here body is not ready yet, throw promise
+                if (!result.ok) throw result;
+                return result.json();
+            })
+            .then(result => {
+                this.loading=false
+                this.alertType = "success"
+                this.alertText = "Murakoze"
+                this.dialog=true
+                setTimeout(this.closeDialog,2000);
+
+            }).catch((error) => {
+              console.log(error)
+               /* error?.json().then((body) => {
+                    this.loading=false
+                    console.log(body);
+                });*/
+            })
+        }
+      }
+    }
   }
 </script>
