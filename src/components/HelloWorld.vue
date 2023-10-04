@@ -1,5 +1,6 @@
 <template>
   <v-container class="fill-height">
+    <v-responsive class="align-center text-center full-height">
     <v-alert
           v-model="dialog"
           variant="outlined"
@@ -7,8 +8,7 @@
           :type="alertType"
           title="Alert title"
           :text="alertText"
-        ></v-alert>
-    <v-responsive class="align-center text-center full-height">
+    ></v-alert>
       <v-sheet min-width="300" max-width="600" class="mx-auto">
          <div class="text-h5 font-weight-medium mb-5">
         Duhe igisokozo !
@@ -61,8 +61,8 @@
 <script>
   export default {
     data: () => ({
-      url:"https://ibisokozo.ksquad.dev/collect/",
-      url2:"http://127.0.0.1:8000/rest_api/collect/",
+      /*url:"/rest_api/collect/",*/
+      url:"http://127.0.0.1:8000/rest_api/collect/",
       igisokozo: "",
       loading:false,
       dialog:false,
@@ -94,7 +94,7 @@
       sendData(){
         if(this.inyishu.trim()?.length>3 && this.igisokozo.trim()?.length>3){
           this.loading=true
-          fetch(this.url2, {
+          fetch(this.url, {
             method: "POST",
             body: JSON.stringify({
               igisokozo: this.igisokozo,
