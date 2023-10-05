@@ -1,14 +1,6 @@
 <template>
   <v-container class="fill-height">
     <v-responsive class="align-center text-center full-height">
-    <v-alert
-          v-model="dialog"
-          variant="outlined"
-          closable
-          :type="alertType"
-          title="Alert title"
-          :text="alertText"
-    ></v-alert>
       <v-sheet min-width="300" max-width="600" class="mx-auto">
          <div class="text-h5 font-weight-medium mb-5">
         Duhe igisokozo !
@@ -20,7 +12,6 @@
             variant="outlined"
             clearable
             label="Sokozanya n'uwo muri kumwe ?"
-            :rules="igisokozoRules"
           ></v-text-field>
 
           <v-textarea
@@ -29,7 +20,6 @@
             variant="outlined"
             clearable
             label="Izuru n'umunwa"
-            :rules="inyishuRules"
           ></v-textarea>
 
           <v-btn
@@ -55,6 +45,24 @@
         </v-col>
       </v-row>
     </v-footer>
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="timeout"
+      color="success"
+      variant="outlined"
+    >
+      <v-icon slot="prependIcon" color="success" size="large" >mdi-check-circle</v-icon>
+      Murakoze !
+    </v-snackbar>
+    <v-snackbar
+      v-model="snackbar_error"
+      :timeout="timeout"
+      color="red"
+      variant="outlined"
+    >
+      <v-icon slot="prependIcon" color="red" size="large" >mdi-alert-circle</v-icon>
+      Uzuriza neza igisokozo cawe !
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -64,33 +72,13 @@
       /*url:"/rest_api/collect/",*/
       url:"http://127.0.0.1:8000/rest_api/collect/",
       igisokozo: "",
-      loading:false,
+      snackbar:false,
+      snackbar_error:false,
       dialog:false,
-      alertType:"",
-      alertText:"",
-      igisokozoRules: [
-        value => {
-          if (value.trim()?.length > 3) return true
-
-          return 'Shiramwo igisokozo kibaho koko !'
-        },
-      ],
+      timeout: 2000,
       inyishu: '',
-      inyishuRules: [
-        value => {
-          if (value.trim()?.length > 3) return true
-
-          return `Utegerezwa kwuzuza inyishu y'igisokozo`
-        },
-      ],
     }),
     methods:{
-      closeDialog(){
-        this.dialog=false
-        this.igisokozo=""
-        this.inyishu=""
-        window.location.reload();
-      },
       sendData(){
         if(this.inyishu.trim()?.length>3 && this.igisokozo.trim()?.length>3){
           this.loading=true
@@ -111,10 +99,9 @@
             })
             .then(result => {
                 this.loading=false
-                this.alertType = "success"
-                this.alertText = "Murakoze"
-                this.dialog=true
-                setTimeout(this.closeDialog,2000);
+                this.snackbar=true
+                this.igisokozo=""
+                this.inyishu=""
 
             }).catch((error) => {
               console.log(error)
@@ -123,6 +110,8 @@
                     console.log(body);
                 });*/
             })
+        }else{
+          this.snackbar_error=true
         }
       }
     }
